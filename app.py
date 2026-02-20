@@ -2,118 +2,163 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ----------------------
+# -----------------------------
 # PAGE CONFIG
-# ----------------------
-st.set_page_config(page_title="Expense Tracker Dashboard", layout="wide")
+# -----------------------------
+st.set_page_config(page_title="Expense Analytics Dashboard", layout="wide")
 
-# ----------------------
-# CUSTOM STYLING
-# ----------------------
+# -----------------------------
+# CUSTOM CSS (PORTFOLIO STYLE)
+# -----------------------------
 st.markdown("""
-    <style>
-        .stApp {
-            background-color: #e6f2ff;
-        }
-        .title-style {
-            color: #0b3d91;
-            font-size: 40px;
-            font-weight: bold;
-        }
-        .kpi-box {
-            border: 3px solid black;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            font-weight: bold;
-            background-color: white;
-        }
-    </style>
+<style>
+.stApp {
+    background-color: #eaf4ff;
+}
+
+.main-title {
+    color: #0b3d91;
+    font-size: 42px;
+    font-weight: 700;
+}
+
+.kpi-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    font-weight: 600;
+}
+
+.kpi-value {
+    font-size: 28px;
+    margin-top: 10px;
+}
+
+.section-header {
+    color: #0b3d91;
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 20px;
+}
+</style>
 """, unsafe_allow_html=True)
 
-# ----------------------
+# -----------------------------
 # TITLE
-# ----------------------
-st.markdown('<p class="title-style">Expense Tracker Dashboard</p>', unsafe_allow_html=True)
+# -----------------------------
+st.markdown('<p class="main-title">Expense Analytics Dashboard</p>', unsafe_allow_html=True)
 
-# ----------------------
+# -----------------------------
 # FILE UPLOAD
-# ----------------------
+# -----------------------------
 uploaded_file = st.file_uploader("Upload your expense CSV file", type=["csv"])
 
 if uploaded_file:
-    df = pd.read_csv(uploaded_file)
 
+    df = pd.read_csv(uploaded_file)
     df["Date"] = pd.to_datetime(df["Date"])
     df["Month"] = df["Date"].dt.to_period("M")
 
-    # ----------------------
-    # KPIs CALCULATIONS
-    # ----------------------
-    total_spent = df["Amount"].sum()
-    highest_category = df.groupby("Category")["Amount"].sum().idxmax()
-    highest_category_value = df.groupby("Category")["Amount"].sum().max()
-    avg_transaction = df["Amount"].mean()
+    # -----------------------------
+    # SIDEBAR FILTERS
+    # -----------------------------
+    st.sidebar.header("Filter Data")
 
-    # ----------------------
-    # KPI DISPLAY (HORIZONTAL)
-    # ----------------------
+    selected_category = st.sidebar.multiselect(
+        "Select Category",
+        options=df["Category"].unique(),
+        default=df["Category"].unique()
+    )
+
+    filtered_df = df[df["Category"].isin(selected_category)]
+
+    # -----------------------------
+    # KPI CALCULATIONS
+    # -----------------------------
+    total_spent = filtered_df["Amount"].sum()
+    highest_category = filtered_df.groupby("Category")["Amount"].sum().idxmax()
+    highest_value = filtered_df.groupby("Category")["Amount"].sum().max()
+    avg_transaction = filtered_df["Amount"].mean()
+
+    # -----------------------------
+    # KPI DISPLAY
+    # -----------------------------
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown(f"""
-            <div class="kpi-box">
-                Total Spent <br>
-                ${total_spent:,.2f}
-            </div>
+        <div class="kpi-card">
+            Total Spent
+            <div class="kpi-value">${total_spent:,.2f}</div>
+        </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
-            <div class="kpi-box">
-                Highest Category <br>
-                {highest_category} <br>
-                ${highest_category_value:,.2f}
-            </div>
+        <div class="kpi-card">
+            Highest Category
+            <div class="kpi-value">{highest_category}</div>
+            ${highest_value:,.2f}
+        </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown(f"""
-            <div class="kpi-box">
-                Avg Transaction <br>
-                ${avg_transaction:,.2f}
-            </div>
+        <div class="kpi-card">
+            Avg Transaction
+            <div class="kpi-value">${avg_transaction:,.2f}</div>
+        </div>
         """, unsafe_allow_html=True)
 
-    st.write("")
+    # -----------------------------
+    # MONTHLY TREND (LINE CHART)
+    # -----------------------------
+    st.markdown('<p class="section-header">Monthly Trend</p>', unsafe_allow_html=True)
 
-    # ----------------------
-    # BAR CHART (AFTER KPIs)
-    # ----------------------
-    monthly = df.groupby("Month")["Amount"].sum()
+    monthly = filtered_df.groupby("Month")["Amount"].sum()
     monthly.index = monthly.index.strftime("%b")
 
-    st.subheader("Monthly Expense Summary")
+    fig1, ax1 = plt.subplots()
+    ax1.plot(monthly.index, monthly.values, marker='o')
+    ax1.set_xlabel("Month")
+    ax1.set_ylabel("Total Expenses")
+    st.pyplot(fig1)
 
-    fig, ax = plt.subplots()
-    ax.bar(monthly.index, monthly.values)
-    ax.set_xlabel("Month")
-    ax.set_ylabel("Total Expenses")
+    # -----------------------------
+    # CATEGORY BREAKDOWN (PIE)
+    # -----------------------------
+    st.markdown('<p class="section-header">Category Breakdown</p>', unsafe_allow_html=True)
 
-    st.pyplot(fig)
+    category_totals = filtered_df.groupby("Category")["Amount"].sum()
 
-    # ----------------------
-    # SMART CATEGORY QUIZ
-    # ----------------------
-    st.subheader("Expense Awareness Check")
+    fig2, ax2 = plt.subplots()
+    ax2.pie(category_totals.values, labels=category_totals.index, autopct='%1.1f%%')
+    st.pyplot(fig2)
 
-    category_choice = st.selectbox(
-        "Which category should we reduce spending on?",
-        df["Category"].unique()
+    # -----------------------------
+    # DOWNLOAD BUTTON
+    # -----------------------------
+    st.download_button(
+        label="Download Filtered Data",
+        data=filtered_df.to_csv(index=False),
+        file_name="filtered_expenses.csv",
+        mime="text/csv"
     )
 
-    if st.button("Submit Choice"):
-        if category_choice == highest_category:
-            st.success("✅ Correct! This is your highest spending category! 💰🔥")
+    # -----------------------------
+    # SMART QUIZ SECTION
+    # -----------------------------
+    st.markdown('<p class="section-header">Expense Optimization Challenge</p>', unsafe_allow_html=True)
+
+    user_choice = st.selectbox(
+        "Which category should we reduce spending on?",
+        options=filtered_df["Category"].unique()
+    )
+
+    if st.button("Submit Answer"):
+        if user_choice == highest_category:
+            st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
-            st.error("❌ Not quite. Review your highest category and try again!")
+            st.warning("📊 Not the highest category. Review the dashboard and try again!")
