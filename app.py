@@ -93,40 +93,40 @@ st.write("Filtered Data", filtered_df)
     # -----------------------------
     # KPI CALCULATIONS
     # -----------------------------
-    total_spent = filtered_df["Amount"].sum()
-    highest_category = filtered_df.groupby("Category")["Amount"].sum().idxmax()
-    highest_value = filtered_df.groupby("Category")["Amount"].sum().max()
-    avg_transaction = filtered_df["Amount"].mean()
+total_spent = filtered_df["Amount"].sum()
+highest_category = filtered_df.groupby("Category")["Amount"].sum().idxmax()
+highest_value = filtered_df.groupby("Category")["Amount"].sum().max()
+avg_transaction = filtered_df["Amount"].mean()
 
     # -----------------------------
     # KPI DISPLAY
     # -----------------------------
-    col1, col2, col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.markdown(f"""
-        <div class="kpi-card">
-            Total Spent
-            <div class="kpi-value">${total_spent:,.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
+with col1:
+    st.markdown(f"""
+    <div class="kpi-card">
+        Total Spent
+        <div class="kpi-value">${total_spent:,.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
-    with col2:
-        st.markdown(f"""
-        <div class="kpi-card">
-            Highest Category
-            <div class="kpi-value">{highest_category}</div>
-            ${highest_value:,.2f}
-        </div>
-        """, unsafe_allow_html=True)
+ with col2:
+    st.markdown(f"""
+    <div class="kpi-card">
+        Highest Category
+        <div class="kpi-value">{highest_category}</div>
+        ${highest_value:,.2f}
+    \</div>
+    """, unsafe_allow_html=True)
 
-    with col3:
-        st.markdown(f"""
-        <div class="kpi-card">
-            Avg Transaction
-            <div class="kpi-value">${avg_transaction:,.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
+with col3:
+    st.markdown(f"""
+    <div class="kpi-card">
+        Avg Transaction
+        <div class="kpi-value">${avg_transaction:,.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
     # -----------------------------
     # MONTHLY TREND (LINE CHART)
@@ -178,6 +178,7 @@ st.write("Filtered Data", filtered_df)
             st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
             st.warning("📊 Not the highest category. Review the dashboard and try again!")
+
 
 
 
