@@ -65,8 +65,7 @@ if uploaded_file:
     # SIDEBAR FILTERS
     # -----------------------------
     st.sidebar.header("Filter Data")
-
-    categories = df["Category"].unique().tolist()
+categories = df["Category"].unique().tolist()
 categories.insert(0, "All")
 
 selected_category = st.sidebar.multiselect(
@@ -76,9 +75,13 @@ selected_category = st.sidebar.multiselect(
 )
 
 if "All" in selected_category:
-    selected_category = df["Category"].unique()
+    filtered_df = df
 
+elif len(selected_category) > 0:
     filtered_df = df[df["Category"].isin(selected_category)]
+
+else:
+    filtered_df = df.iloc[0:0]  # empty dataframe
 
     # -----------------------------
     # KPI CALCULATIONS
@@ -168,5 +171,6 @@ if "All" in selected_category:
             st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
             st.warning("📊 Not the highest category. Review the dashboard and try again!")
+
 
 
