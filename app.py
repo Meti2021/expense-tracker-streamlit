@@ -76,19 +76,19 @@ selected_category = st.sidebar.multiselect(
     default=["All"]
 )
 
-# Filter logic
-if not selected_category:
-    st.warning("Please select at least one category")
-    filtered_df = df.iloc[0:0]  # empty dataframe
-
-elif "All" in selected_category:
-    filtered_df = df  # show everything
-
-else:
-    filtered_df = df[df["Category"].isin(selected_category)]
-
-# Display filtered results
-st.write("Filtered Data", filtered_df)
+    # Filter logic
+    if not selected_category:
+        st.warning("Please select at least one category")
+        filtered_df = df.iloc[0:0]  # empty dataframe
+    
+    elif "All" in selected_category:
+        filtered_df = df  # show everything
+    
+    else:
+        filtered_df = df[df["Category"].isin(selected_category)]
+    
+    # Display filtered results
+    st.write("Filtered Data", filtered_df)
 
     # -----------------------------
     # KPI CALCULATIONS
@@ -178,6 +178,7 @@ st.write("Filtered Data", filtered_df)
             st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
             st.warning("📊 Not the highest category. Review the dashboard and try again!")
+
 
 
 
