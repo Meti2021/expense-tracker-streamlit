@@ -64,15 +64,25 @@ if uploaded_file:
     # -----------------------------
     # SIDEBAR FILTERS
     # -----------------------------
-    st.sidebar.header("Filter Data")
-
+        st.sidebar.header("Filter Data")
+        # Add 'All' option to the category list
+        categories = list(df["Category"].unique())
+        categories.insert(0, "All")  # 'All' at the top
+    
+    # Multiselect filter
     selected_category = st.sidebar.multiselect(
         "Select Category",
-        options=df["Category"].unique(),
-        default=df["Category"].unique()
+        options=categories,
+        default="All"
     )
 
-    filtered_df = df[df["Category"].isin(selected_category)]
+    # selected_category = st.sidebar.multiselect(
+    #     "Select Category",
+    #     options=df["Category"].unique(),
+    #     default=df["Category"].unique()
+    # )
+
+    # filtered_df = df[df["Category"].isin(selected_category)]
 
     # -----------------------------
     # KPI CALCULATIONS
@@ -162,3 +172,4 @@ if uploaded_file:
             st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
             st.warning("📊 Not the highest category. Review the dashboard and try again!")
+
