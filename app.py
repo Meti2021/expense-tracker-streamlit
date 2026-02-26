@@ -67,8 +67,8 @@ if uploaded_file:
     st.sidebar.header("Filter Data")
 
     categories = df["Category"].unique().tolist()
-categories.sort()
-categories.insert(0, "All")  # Add "All" at the top
+    categories.sort()
+    categories.insert(0, "All")  # Add "All" at the top
 
 selected_category = st.sidebar.multiselect(
     "Select Category",
@@ -178,6 +178,7 @@ selected_category = st.sidebar.multiselect(
             st.success("🎯 Excellent insight! This is your highest spending category. Smart financial awareness! 💡💰")
         else:
             st.warning("📊 Not the highest category. Review the dashboard and try again!")
+
 
 
 
